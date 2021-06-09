@@ -8,7 +8,7 @@ import torch.nn.functional as F
 from dgl.nn.pytorch import GraphConv
 
 from sklearn.utils import shuffle
-my_batch_size = 10
+my_batch_size = 3
 
 from dgl.data import DGLDataset
 
@@ -146,7 +146,7 @@ for epoch in range(30):
         print("epochs:"+str(epoch)+"------------------------loss:"+str(loss))
     losses.append(temp)
 
-torch.save(gnn, '../models/gcn.pkl')
 plt.plot(losses)
-plt.savefig('../graphs/gcn_losses.png')
-plt.show()
+plt.savefig('./graphs/gcn_losses.png')
+torch.save(gnn, '../models/gcn.pkl')
+
