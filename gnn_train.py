@@ -1,3 +1,4 @@
+from datetime import time
 import os
 import pandas as pd
 import numpy as np
@@ -132,7 +133,8 @@ import matplotlib.pyplot as plt
 optimizer = torch.optim.Adam(gnn.parameters(), lr=0.01)
 all_logits = []
 losses = []
-temp = 1.0
+test_acc = []
+temp = 0.0
 for epoch in range(30):
     for batched_graph, labels in tqdm(train_dataloader):
         pred = gnn(batched_graph, batched_graph.ndata['h'].float())
@@ -144,9 +146,20 @@ for epoch in range(30):
         optimizer.step()
         temp = loss
         print("epochs:"+str(epoch)+"------------------------loss:"+str(loss))
+    num_correct = 0
+    num_tests = 0
+    for batched_graph, labels in test_dataloader:
+        pred = gnn(batched_graph, batched_graph.ndata['h'].float())
+        num_correct += (pred.argmax(1) == labels).sum().item()
+        num_tests += len(labels)
     losses.append(temp)
+    test_acc.append(num_correct/num_tests)
+
 
 plt.plot(losses)
-plt.savefig('./graphs/gcn_losses.png')
-torch.save(gnn, '../models/gcn.pkl')
+plt.savefig('./graphs/gcn_losses' + str(time.time()) + '.png')
+plt.cla()
+plt.plot(test_acc)
+plt.savefig('./graphs/gcn_testAcc' + str(time.time()) + '.png')
+torch.save(gnn, '../models/gcn' + str(time.time()) + '.pkl')
 
