@@ -1,4 +1,4 @@
-from datetime import time
+import time
 import os
 import pandas as pd
 import numpy as np
@@ -154,12 +154,17 @@ for epoch in range(30):
         num_tests += len(labels)
     losses.append(temp)
     test_acc.append(num_correct/num_tests)
+    with open("./losses", w) as f:
+    	f.write(str(temp))
+    with open("./accs", w) as f:
+    	f.write(str(num_correct/num_tests))
 
 
+version = str(int(time.time()))
 plt.plot(losses)
-plt.savefig('./graphs/gcn_losses' + str(time.time()) + '.png')
+plt.savefig('./graphs/gcn_losses' + version + '.png')
 plt.cla()
 plt.plot(test_acc)
-plt.savefig('./graphs/gcn_testAcc' + str(time.time()) + '.png')
-torch.save(gnn, '../models/gcn' + str(time.time()) + '.pkl')
+plt.savefig('./graphs/gcn_testAcc' + version + '.png')
+torch.save(gnn, '../models/gcn' + version + '.pkl')
 
