@@ -154,9 +154,9 @@ for epoch in range(30):
         num_tests += len(labels)
     losses.append(temp)
     test_acc.append(num_correct/num_tests)
-    with open("./losses", w) as f:
+    with open("./losses", 'w') as f:
     	f.write(str(temp))
-    with open("./accs", w) as f:
+    with open("./accs", 'w') as f:
     	f.write(str(num_correct/num_tests))
 
 
