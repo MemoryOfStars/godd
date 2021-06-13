@@ -116,8 +116,15 @@ class GCN(nn.Module):
         super(GCN, self).__init__()
         self.conv1 = GraphConv(in_feats, hidden_size, allow_zero_in_degree=True)
         self.conv2 = GraphConv(hidden_size, num_classes, allow_zero_in_degree=True)
+        param_mu = torch.tensor(0.0)
+        param_sigma = torch.tensor(1.0)
+        self.param_mu = nn.Parameter(param_mu)
+        self.param_sigma = nn.Parameter(param_sigma)
 
     def forward(self, g, inputs):
+        pow_param = torch.mul(g.edata['h'] - self.param_mu, g.edata['h'] - self.param_mu)/(-self.param_sigma)
+        efeat = torch.log(pow_param)
+        g.edata['h'] = efeat
         h = self.conv1(g, inputs)
         h = F.relu(h)
         h = self.conv2(g, h)
