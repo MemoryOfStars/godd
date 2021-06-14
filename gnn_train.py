@@ -112,10 +112,12 @@ test_dataloader = GraphDataLoader(my_dataset, sampler=test_sampler, batch_size=m
 
 
 class GCN(nn.Module):
-    def __init__(self, in_feats, hidden_size, num_classes):
+    def __init__(self, in_feats, hidden_size1, hidden_size2, hidden_size3, num_classes):
         super(GCN, self).__init__()
-        self.conv1 = GraphConv(in_feats, hidden_size, allow_zero_in_degree=True)
-        self.conv2 = GraphConv(hidden_size, num_classes, allow_zero_in_degree=True)
+        self.conv1 = GraphConv(in_feats, hidden_size1, allow_zero_in_degree=True)
+        self.conv2 = GraphConv(hidden_size1, hidden_size2, allow_zero_in_degree=True)
+        self.dnn1  = torch.nn.Linear(hidden_size2, hidden_size3)
+        self.dnn2  = torch.nn.Linear(hidden_size3, num_classes)
         param_mu = torch.tensor(0.0)
         param_sigma = torch.tensor(1.0)
         self.param_mu = nn.Parameter(param_mu)
@@ -128,9 +130,17 @@ class GCN(nn.Module):
         h = self.conv1(g, inputs)
         h = F.relu(h)
         h = self.conv2(g, h)
+        h = F.relu(h)
         g.ndata['h'] = h
-        return dgl.mean_nodes(g, 'h')
-gnn = GCN(10, 16, 2)
+        h = dgl.mean_nodes(g, 'h')
+        h = self.dnn1(h)
+        h = F.dropout(h, p=0.3)
+        h = F.relu(h)
+        h = self.dnn2(h)
+        h = F.dropout(h, p=0.2)
+        h = torch.sigmoid(h)
+        return h
+gnn = GCN(10, 16, 256, 128, 2)
 
 
 import itertools
@@ -161,9 +171,9 @@ for epoch in range(30):
         num_tests += len(labels)
     losses.append(temp)
     test_acc.append(num_correct/num_tests)
-    with open("./losses", 'w') as f:
+    with open("./losses", 'w+') as f:
     	f.write(str(temp))
-    with open("./accs", 'w') as f:
+    with open("./accs", 'w+') as f:
     	f.write(str(num_correct/num_tests))
 
 
