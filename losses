@@ -1,1 +1,1 @@
-tensor(0.8937, grad_fn=<NllLossBackward>)
+tensor(0.8133, grad_fn=<NllLossBackward>)

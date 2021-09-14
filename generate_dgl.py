@@ -7,7 +7,7 @@ import dgl
 import math
 
 positive_pdb_dir = '../negative_pdb/'
-target_graph_dir = '../negative_graph_save/'
+target_graph_dir = '../negative_dgl/'
 valid_elements = ['N', 'C', 'O', 'S', 'H', 'P', 'F', 'CL',  'BR',  'ZN']
 element_onehot = {}.fromkeys(valid_elements, 0 )
 element_onehot['N'] = [1,0,0,0,0,0,0,0,0,0]
@@ -45,14 +45,14 @@ for pdb_name in os.listdir(positive_pdb_dir):
             y_dis = pdb_data[i][3] - pdb_data[j][3]
             z_dis = pdb_data[i][3] - pdb_data[j][3]
             dis = math.sqrt(x_dis**2+y_dis**2+z_dis**2)
-            if dis < 2.0 and pdb_data[i][1]==pdb_data[j][1] and pdb_data[i][2] == pdb_data[j][2]:
-                graph_edata.append([1])
-                graph_edata.append([1])
-                u_set.append(i)
-                v_set.append(j)
-                u_set.append(j)
-                v_set.append(i)
-            elif dis < 5.0 and (pdb_data[i][1]==pdb_data[j][1] or pdb_data[i][2] == pdb_data[j][2]):
+            # if dis < 2.0 and pdb_data[i][1]==pdb_data[j][1] and pdb_data[i][2] == pdb_data[j][2]:
+            #     graph_edata.append([1])
+            #     graph_edata.append([1])
+            #     u_set.append(i)
+            #     v_set.append(j)
+            #     u_set.append(j)
+            #     v_set.append(i)
+            if dis < 5.0 and (pdb_data[i][1]==pdb_data[j][1] or pdb_data[i][2] == pdb_data[j][2]):
                 graph_edata.append([dis])
                 graph_edata.append([dis])
                 u_set.append(i)

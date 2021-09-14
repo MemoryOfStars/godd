@@ -112,12 +112,11 @@ test_dataloader = GraphDataLoader(my_dataset, sampler=test_sampler, batch_size=m
 
 
 class GCN(nn.Module):
-    def __init__(self, in_feats, hidden_size1, hidden_size2, hidden_size3, num_classes):
+    def __init__(self, in_feats, hidden_size1, hidden_size2, num_classes):
         super(GCN, self).__init__()
         self.conv1 = GraphConv(in_feats, hidden_size1, allow_zero_in_degree=True)
         self.conv2 = GraphConv(hidden_size1, hidden_size2, allow_zero_in_degree=True)
-        self.dnn1  = torch.nn.Linear(hidden_size2, hidden_size3)
-        self.dnn2  = torch.nn.Linear(hidden_size3, num_classes)
+        self.dnn2  = torch.nn.Linear(hidden_size2, num_classes)
         param_mu = torch.tensor(0.0)
         param_sigma = torch.tensor(1.0)
         self.param_mu = nn.Parameter(param_mu)
@@ -133,14 +132,11 @@ class GCN(nn.Module):
         h = F.relu(h)
         g.ndata['h'] = h
         h = dgl.mean_nodes(g, 'h')
-        h = self.dnn1(h)
-        h = F.dropout(h, p=0.3)
-        h = F.relu(h)
         h = self.dnn2(h)
         h = F.dropout(h, p=0.2)
         h = torch.sigmoid(h)
         return h
-gnn = GCN(10, 16, 256, 128, 2)
+gnn = GCN(10, 16, 12, 4)
 
 
 import itertools
@@ -153,20 +149,19 @@ losses = []
 test_acc = []
 temp = 0.0
 for epoch in range(30):
+    
     for batched_graph, labels in tqdm(train_dataloader):
-        pred = gnn(batched_graph, batched_graph.ndata['h'].float())
-        #print(pred.shape)
-        #print(labels.shape)
+        pred = gnn(batched_graph, batched_graph.ndata['h'].float()).squeeze(1)
         loss = F.cross_entropy(pred, labels)
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
         temp = loss
-        print("epochs:"+str(epoch)+"------------------------loss:"+str(loss))
+    print("epochs:"+str(epoch)+"------------------------loss:"+str(temp))
     num_correct = 0
     num_tests = 0
     for batched_graph, labels in test_dataloader:
-        pred = gnn(batched_graph, batched_graph.ndata['h'].float())
+        pred = gnn(batched_graph, batched_graph.ndata['h'].float()).squeeze(1)
         num_correct += (pred.argmax(1) == labels).sum().item()
         num_tests += len(labels)
     losses.append(temp)
