@@ -1,1 +1,1 @@
-tensor(0.8133, grad_fn=<NllLossBackward>)
+tensor(1.3133, device='cuda:0', grad_fn=<NllLossBackward>)

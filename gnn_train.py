@@ -3,13 +3,15 @@ import os
 import pandas as pd
 import numpy as np
 import torch
+import gc
 import dgl
 import torch.nn as nn
 import torch.nn.functional as F
 from dgl.nn.pytorch import GraphConv
+from torch.autograd import Variable
 
 from sklearn.utils import shuffle
-my_batch_size = 3
+my_batch_size = 5
 
 from dgl.data import DGLDataset
 
@@ -132,11 +134,14 @@ class GCN(nn.Module):
         h = F.relu(h)
         g.ndata['h'] = h
         h = dgl.mean_nodes(g, 'h')
+        h = F.relu(h)
         h = self.dnn2(h)
         h = F.dropout(h, p=0.2)
         h = torch.sigmoid(h)
         return h
-gnn = GCN(10, 16, 12, 4)
+
+device = torch.device("cuda:0")
+gnn = GCN(10, 16, 16, 2).to(device)
 
 
 import itertools
@@ -148,20 +153,34 @@ all_logits = []
 losses = []
 test_acc = []
 temp = 0.0
-for epoch in range(30):
+for epoch in range(100):
     
     for batched_graph, labels in tqdm(train_dataloader):
-        pred = gnn(batched_graph, batched_graph.ndata['h'].float()).squeeze(1)
-        loss = F.cross_entropy(pred, labels)
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-        temp = loss
+        try:
+            batched_graph, labels = batched_graph.to(device), labels.to(device)
+            pred = gnn(batched_graph, batched_graph.ndata['h'].float()).squeeze(1)
+            loss = F.cross_entropy(pred, labels)
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            temp = loss
+        except RuntimeError as exception:
+            if "out of memory" in str(exception):
+                print("WARN: out of memory")
+                gc.collect()
+                torch.cuda.empty_cache()
+            else:
+                raise exception
     print("epochs:"+str(epoch)+"------------------------loss:"+str(temp))
     num_correct = 0
     num_tests = 0
+    #with torch.no_grad():
     for batched_graph, labels in test_dataloader:
+        batched_graph, labels = batched_graph.to(device), labels.to(device)
+        torch.cuda.empty_cache()
         pred = gnn(batched_graph, batched_graph.ndata['h'].float()).squeeze(1)
+
+        torch.cuda.empty_cache()
         num_correct += (pred.argmax(1) == labels).sum().item()
         num_tests += len(labels)
     losses.append(temp)
