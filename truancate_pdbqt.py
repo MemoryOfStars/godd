@@ -1,12 +1,13 @@
 import os
 
-pro_pdbqt = '../receptor_dock/'
+pro_pdbqt = '../v2020_receptor_dock/'
 count = 0
 
 for i in os.listdir(pro_pdbqt):
     pf_content = []
     truncated = []
-    print(count)
+    #fn = '6ugz.pdbqt'
+    print('\r' + str(count), end='')
     count+=1
     with open(pro_pdbqt+i) as pf:
         pf_content = pf.readlines()

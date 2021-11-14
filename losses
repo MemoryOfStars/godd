@@ -1,1 +1,1 @@
-tensor(1.3133, device='cuda:0', grad_fn=<NllLossBackward>)
+tensor(0.5821, device='cuda:0', grad_fn=<BinaryCrossEntropyBackward>)
