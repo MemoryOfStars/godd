@@ -24,6 +24,7 @@ from torch.utils.data.sampler import SubsetRandomSampler
 
 numTrain = len(trainDataset)
 numValidation = len(validationDataset)
+print("numTrain:" + str(numTrain) + ", numValidation:" + str(numValidation))
 
 trainSampler = SubsetRandomSampler(torch.arange(numTrain))
 validationSampler = SubsetRandomSampler(torch.arange(numValidation))

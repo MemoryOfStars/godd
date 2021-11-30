@@ -43,6 +43,7 @@ class MyDataset(DGLDataset):
         
         posiPos = 0
         negaPos = 0
+        datasetCount = 0
 
         while negaPos < size:
             count = 0
@@ -51,15 +52,15 @@ class MyDataset(DGLDataset):
                 if posiPos >= size:
                     posiPos = posiPos%size
                 if labels[posiPos] == 1.0:
-                    dfBatch.append([{'file_name': graphs[posiPos], 'label': labels[posiPos]}])
+                    dfBatch = dfBatch.append([{'file_name': graphs[posiPos], 'label': torch.Tensor([labels[posiPos]])}], ignore_index=True)
                     count += 1
                 posiPos += 1
             while count < self.batchSize and negaPos < size:
                 if labels[negaPos] == 0.0:
-                    dfBatch.append([{'file_name': graphs[negaPos], 'label': labels[negaPos]}])
+                    dfBatch = dfBatch.append([{'file_name': graphs[negaPos], 'label': torch.Tensor([labels[negaPos]])}], ignore_index=True)
                     count += 1
                 negaPos += 1
-            self.dataset.append(shuffle(dfBatch))
+            self.dataset = self.dataset.append(shuffle(dfBatch), ignore_index=True)
 
 
     #must be implemented
@@ -76,9 +77,11 @@ class MyDataset(DGLDataset):
         (dgl.DGLGraph, Tensor)
         """
         # idx.item():convert torch.Tensor to int
+        # print("-----idx.item():", idx.item())
+        # print(self.dataset['file_name'][idx.item()])
         graph = dgl.load_graphs(self.dataset['file_name'][idx.item()])[0]
         label = self.dataset['label'][idx.item()]
-        return graph[0], label.float()
+        return graph[0], label[0].float()
 
     #must be implemented
     def __len__(self):
