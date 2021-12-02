@@ -1,6 +1,8 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import numpy as np
+import math
 import dgl
 from dgl.nn.pytorch import GraphConv
 
@@ -27,9 +29,13 @@ class GCN(nn.Module):
         self.param_sigma = nn.Parameter(param_sigma)
 
     def forward(self, g, inputs):
-        pow_param = torch.mul(g.edata['h'] - self.param_mu, g.edata['h'] - self.param_mu)/(-self.param_sigma)
-        efeat = torch.log(pow_param)
-        g.edata['h'] = efeat
+        edata = np.array(g.edata['h'].cpu())
+        for i, e in enumerate(edata):
+            if e != 1.0:
+                edata[i] = math.exp(((e-self.param_mu.item())**2)/(-self.param_sigma.item()))
+        #pow_param = torch.mul(g.edata['h'] - self.param_mu, g.edata['h'] - self.param_mu)/(-self.param_sigma)
+        #efeat = torch.log(pow_param)
+        g.edata['h'] = torch.Tensor(edata).cuda()
         h = self.conv1(g, inputs)
         h = F.leaky_relu(h)
         h = self.conv2(g, h)
