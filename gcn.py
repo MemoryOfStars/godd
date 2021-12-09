@@ -5,11 +5,13 @@ import numpy as np
 import math
 import dgl
 from dgl.nn.pytorch import GraphConv
+from dgl.nn.pytorch import GATConv
 
 
 class GCN(nn.Module):
     def __init__(self, in_feats, num_classes):
         super(GCN, self).__init__()
+        self.gat = GATConv(in_feats, in_feats, num_heads=1, allow_zero_in_degree=True)
         self.conv1 = GraphConv(in_feats, 80, allow_zero_in_degree=True)
         self.conv2 = GraphConv(80, 160, allow_zero_in_degree=True)
         self.conv3 = GraphConv(160, 112, allow_zero_in_degree=True)
@@ -36,7 +38,9 @@ class GCN(nn.Module):
         #pow_param = torch.mul(g.edata['h'] - self.param_mu, g.edata['h'] - self.param_mu)/(-self.param_sigma)
         #efeat = torch.log(pow_param)
         g.edata['h'] = torch.Tensor(edata).cuda()
-        h = self.conv1(g, inputs)
+        h = self.gat(g, inputs)
+        #print("shapes----", inputs.shape, h.shape)
+        h = self.conv1(g, h)
         h = F.leaky_relu(h)
         h = self.conv2(g, h)
         h = F.leaky_relu(h)

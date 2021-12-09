@@ -53,7 +53,7 @@ FPRate = []
 FNRate = []
 temp = 0.0
 lossFunc = torch.nn.BCELoss()
-for epoch in range(800):
+for epoch in range(300):
     
     for batched_graph, labels in tqdm(trainDataloader):
         # try:
@@ -92,10 +92,32 @@ for epoch in range(800):
     FNRate.append(FN/num_tests)
     test_acc.append(curAcc)
     print("epochs:"+str(epoch)+"------------------------Acc:"+str(curAcc) + " FNRate:" + str(FN/num_tests))
-    with open("./losses", 'w+') as f:
-    	f.write(str(temp))
-    with open("./accs", 'w+') as f:
-    	f.write(str(num_correct/num_tests))
+    # with open("./losses", 'w+') as f:
+    # 	f.write(str(temp))
+    # with open("./accs", 'w+') as f:
+    # 	f.write(str(num_correct/num_tests))
+    if epoch%50 == 0:
+        version = str(int(time.time()))
+        plt.plot(losses)
+        plt.xlabel('epochs')
+        plt.ylabel('Loss')
+        plt.savefig('./graphs/gcn_losses' + version + '.png')
+        plt.cla()
+        plt.plot(test_acc)
+        plt.xlabel('epochs')
+        plt.ylabel('Accuracy')
+        plt.savefig('./graphs/gcn_testAcc' + version + '.png')
+        plt.cla()
+        plt.plot(FPRate)
+        plt.xlabel('epochs')
+        plt.ylabel('FP Rate')
+        plt.savefig('./graphs/gcn_FPRate' + version + '.png')
+        plt.cla()
+        plt.plot(FNRate)
+        plt.xlabel('epochs')
+        plt.ylabel('FN Rate')
+        plt.savefig('./graphs/gcn_FNRate' + version + '.png')
+        torch.save(gnn, '../models/gcn' + version + '.pkl')
 
 
 version = str(int(time.time()))
