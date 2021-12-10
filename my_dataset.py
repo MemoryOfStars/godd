@@ -4,6 +4,10 @@ import pandas as pd
 import torch
 from sklearn.utils import shuffle
 
+"""
+一个csv文件和一个batch size
+生成一个shuffle过的新的batch size里正负例1：1的新df，从这个df里面取数据
+"""
 
 class MyDataset(DGLDataset):
     """
