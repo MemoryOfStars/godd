@@ -38,9 +38,11 @@ class GCN(nn.Module):
         #pow_param = torch.mul(g.edata['h'] - self.param_mu, g.edata['h'] - self.param_mu)/(-self.param_sigma)
         #efeat = torch.log(pow_param)
         g.edata['h'] = torch.Tensor(edata).cuda()
-        h = self.gat(g, inputs)
+        # Use GAT
+        #h = self.gat(g, inputs)
         #print("shapes----", inputs.shape, h.shape)
-        h = self.conv1(g, h)
+        #h = self.conv1(g, h)
+        h = self.conv1(g, inputs)
         h = F.leaky_relu(h)
         h = self.conv2(g, h)
         h = F.leaky_relu(h)

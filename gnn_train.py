@@ -12,6 +12,7 @@ from torch.autograd import Variable
 
 from sklearn.utils import shuffle
 batchSize = 20
+trainName = 'GCNWithNewTestDataset'
 
 from dgl.data import DGLDataset
 from my_dataset import  MyDataset
@@ -98,47 +99,48 @@ for epoch in range(300):
     # 	f.write(str(num_correct/num_tests))
     if epoch%50 == 0:
         version = str(int(time.time()))
+        plt.cla()
         plt.plot(losses)
         plt.xlabel('epochs')
         plt.ylabel('Loss')
-        plt.savefig('./graphs/gcn_losses' + version + '.png')
+        plt.savefig('./graphs/gcn_losses' + version + trainName + '.png')
         plt.cla()
         plt.plot(test_acc)
         plt.xlabel('epochs')
         plt.ylabel('Accuracy')
-        plt.savefig('./graphs/gcn_testAcc' + version + '.png')
+        plt.savefig('./graphs/gcn_testAcc' + trainName + version + '.png')
         plt.cla()
         plt.plot(FPRate)
         plt.xlabel('epochs')
         plt.ylabel('FP Rate')
-        plt.savefig('./graphs/gcn_FPRate' + version + '.png')
+        plt.savefig('./graphs/gcn_FPRate' + version + trainName + '.png')
         plt.cla()
         plt.plot(FNRate)
         plt.xlabel('epochs')
         plt.ylabel('FN Rate')
-        plt.savefig('./graphs/gcn_FNRate' + version + '.png')
-        torch.save(gnn, '../models/gcn' + version + '.pkl')
+        plt.savefig('./graphs/gcn_FNRate' + version + trainName + '.png')
+        torch.save(gnn, '../models/gcn' + version + trainName + '.pkl')
 
 
 version = str(int(time.time()))
 plt.plot(losses)
 plt.xlabel('epochs')
 plt.ylabel('Loss')
-plt.savefig('./graphs/gcn_losses' + version + '.png')
+plt.savefig('./graphs/gcn_losses' + trainName + version + '.png')
 plt.cla()
 plt.plot(test_acc)
 plt.xlabel('epochs')
 plt.ylabel('Accuracy')
-plt.savefig('./graphs/gcn_testAcc' + version + '.png')
+plt.savefig('./graphs/gcn_testAcc' + trainName + version + '.png')
 plt.cla()
 plt.plot(FPRate)
 plt.xlabel('epochs')
 plt.ylabel('FP Rate')
-plt.savefig('./graphs/gcn_FPRate' + version + '.png')
+plt.savefig('./graphs/gcn_FPRate' + trainName + version + '.png')
 plt.cla()
 plt.plot(FNRate)
 plt.xlabel('epochs')
 plt.ylabel('FN Rate')
-plt.savefig('./graphs/gcn_FNRate' + version + '.png')
-torch.save(gnn, '../models/gcn' + version + '.pkl')
+plt.savefig('./graphs/gcn_FNRate' + trainName + version + '.png')
+torch.save(gnn, '../models/gcn' + trainName + version + '.pkl')
 
