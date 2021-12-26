@@ -7,7 +7,11 @@ class RMSDCalculator():
     def __init__(self):
         pass
 
-    def calculate(self, naturalFile, dockingFile):
+    def calculateRMSD(self, naturalFile, dockingFile):
+        '''
+        input: two file path
+        output: rmsd
+        '''
         print(naturalFile, dockingFile, end=' ')
         oriX = [];oriY = [];oriZ = []
         with open(naturalFile) as natFile:

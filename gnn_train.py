@@ -17,8 +17,8 @@ trainName = 'GCNWithNewTestDataset'
 from dgl.data import DGLDataset
 from my_dataset import  MyDataset
 
-trainDataset = MyDataset('./train_dataset.csv', batchSize)
-validationDataset = MyDataset('./validation_dataset.csv', batchSize)
+trainDataset = MyDataset('./train_dataset.csv', batchSize, (-1, -1))
+validationDataset = MyDataset('./validation_dataset.csv', batchSize, (2, 4))
 
 from dgl.dataloading.pytorch import GraphDataLoader
 from torch.utils.data.sampler import SubsetRandomSampler

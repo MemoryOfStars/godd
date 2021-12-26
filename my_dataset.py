@@ -3,6 +3,7 @@ from dgl.data import DGLDataset
 import pandas as pd
 import torch
 from sklearn.utils import shuffle
+from data_filter import DataFilter
 
 """
 一个csv文件和一个batch size
@@ -15,11 +16,12 @@ class MyDataset(DGLDataset):
     -------------------------
     raw_dir: str
         Specifying the directory that already stores the input data.
-    
+    rmsdBound: if a condition need to be fulfilled in this dataset for negative rows.set to (-1, -1) to disable it. 
     """
     def __init__(self, 
                  csvFile,
                  batchSize,
+                 rmsdBound,
                  url=None,
                  raw_dir=None,
                  save_dir=None,
@@ -27,6 +29,7 @@ class MyDataset(DGLDataset):
                  verbose=False):
         self.csvFile = csvFile
         self.batchSize = batchSize
+        self.rmsdBound = rmsdBound
         super(MyDataset, self).__init__(name='docking_classify',
                                         url=url,
                                         raw_dir=raw_dir,
@@ -48,6 +51,7 @@ class MyDataset(DGLDataset):
         posiPos = 0
         negaPos = 0
         datasetCount = 0
+        dataFilter = DataFilter()
 
         while negaPos < size:
             count = 0
@@ -61,6 +65,12 @@ class MyDataset(DGLDataset):
                 posiPos += 1
             while count < self.batchSize and negaPos < size:
                 if labels[negaPos] == 0.0:
+                    if self.rmsdBound != (-1, -1):
+                        dataID = dataFilter.getDataID(graphs[negaPos])
+                        dockingPath = dataFilter.getFilePathByDataID(dataID)
+                        if not dataFilter.rmsdInbound(graphs[negaPos], self.rmsdBound):
+                            negaPos += 1
+                            continue
                     dfBatch = dfBatch.append([{'file_name': graphs[negaPos], 'label': torch.Tensor([labels[negaPos]])}], ignore_index=True)
                     count += 1
                 negaPos += 1
