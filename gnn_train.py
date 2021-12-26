@@ -123,6 +123,7 @@ for epoch in range(300):
 
 
 version = str(int(time.time()))
+plt.cla()
 plt.plot(losses)
 plt.xlabel('epochs')
 plt.ylabel('Loss')
