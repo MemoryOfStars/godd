@@ -12,7 +12,7 @@ class RMSDCalculator():
         input: two file path
         output: rmsd
         '''
-        print(naturalFile, dockingFile, end=' ')
+        # print("RMSDCalculator: ", naturalFile, dockingFile, end=' ')
         oriX = [];oriY = [];oriZ = []
         with open(naturalFile) as natFile:
             for line in natFile.readlines():
@@ -33,6 +33,6 @@ class RMSDCalculator():
                     dockZ.append(float(line[47:54].strip()))
         dockX = np.array(dockX);dockY = np.array(dockY);dockZ = np.array(dockZ)
         rmsd = math.sqrt(((dockX-oriX)**2 + (dockY-oriY)**2 + (dockZ-oriZ)**2).sum()/n)
-        print(rmsd)
+        # print(rmsd)
 
         return rmsd

@@ -12,13 +12,13 @@ from torch.autograd import Variable
 
 from sklearn.utils import shuffle
 batchSize = 20
-trainName = 'GCNWithNewTestDataset'
+trainName = 'GAT_with_simple_feature'
 
 from dgl.data import DGLDataset
 from my_dataset import  MyDataset
 
-trainDataset = MyDataset('./train_dataset.csv', batchSize, (-1, -1))
-validationDataset = MyDataset('./validation_dataset.csv', batchSize, (2, 4))
+trainDataset = MyDataset('./train_dataset_simple.csv', batchSize, (-1, -1))
+validationDataset = MyDataset('./validation_dataset_simple.csv', batchSize, (2, 4))
 
 from dgl.dataloading.pytorch import GraphDataLoader
 from torch.utils.data.sampler import SubsetRandomSampler
@@ -37,7 +37,9 @@ validationDataloader = GraphDataLoader(validationDataset, sampler=validationSamp
 from gcn import GCN
 
 device = torch.device("cuda:0")
-gnn = GCN(44, 1).to(device)
+inout_layers = [34, 80, 112, 128, 144, 160, 176, 144, 96, 64, 32]
+gcn_index = []
+gnn = GCN(inout_layers, gcn_index, 1).to(device)
 
 
 import itertools
