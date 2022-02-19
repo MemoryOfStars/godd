@@ -12,7 +12,7 @@ from torch.autograd import Variable
 
 from sklearn.utils import shuffle
 batchSize = 20
-trainName = 'GAT_with_simple_feature'
+trainName = 'newLayers'
 
 from dgl.data import DGLDataset
 from my_dataset import  MyDataset
