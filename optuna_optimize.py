@@ -49,6 +49,8 @@ def objective(trial):
     # Get the MNIST dataset.
     trainDataset = MyDataset('./train_dataset_simple.csv', batchSize, (-1, -1))
     validationDataset = MyDataset('./validation_dataset_simple.csv', batchSize, (2, 4))
+    numTrain = 500
+    numValidation = 100
     
     trainSampler = SubsetRandomSampler(torch.arange(numTrain))
     validationSampler = SubsetRandomSampler(torch.arange(numValidation))
@@ -56,10 +58,36 @@ def objective(trial):
     trainDataloader = GraphDataLoader(trainDataset, sampler=trainSampler, batch_size=batchSize, drop_last=False)
     validationDataloader = GraphDataLoader(validationDataset, sampler=validationSampler, batch_size=batchSize, drop_last=False)
 
-    # TODO adjust following and debug
     # Training of the model.
+    for epoch in range(300):
+        
+        for batched_graph, labels in tqdm(trainDataloader):
+            # try:
+            batched_graph, labels = batched_graph.to(device), labels.to(device)
+            pred = gnn(batched_graph, batched_graph.ndata['h'].float()).squeeze(1).squeeze(1)
+            # print(pred, labels)
+            loss = lossFunc(pred, labels)
+            # print(loss)
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            temp = loss
+
+        print("epochs:"+str(epoch)+"------------------------loss:"+str(temp))
+        num_correct = 0
+        num_tests = 0
+    
+        for batched_graph, labels in validationDataloader:
+            batched_graph, labels = batched_graph.to(device), labels.to(device)
+            pred = gnn(batched_graph, batched_graph.ndata['h'].float()).squeeze(1).squeeze(1)
+
+            num_correct += (pred.round() == labels).sum().item() # TP+TN
+            num_tests += len(labels) # TP+TN+FP+FN
+        losses.append(temp)
+        curAcc = num_correct/num_tests
+        print("epochs:"+str(epoch)+"------------------------Acc:"+str(curAcc) + " FNRate:" + str(FN/num_tests))
+    # TODO delete and debug
     for epoch in range(EPOCHS):
-        model.train()
         for batch_idx, (data, target) in enumerate(train_loader):
             # Limiting training data for faster epochs.
             if batch_idx * BATCHSIZE >= N_TRAIN_EXAMPLES:
