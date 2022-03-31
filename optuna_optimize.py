@@ -29,7 +29,7 @@ def define_model(trial):
     layers.append(n_features)
     for i in range(n_layers):
     # 隐藏层神经元形式调整  [-1,input,output]
-        out_features = trial.suggest_int("n_units_l{}".format(i), 32, 200)
+        out_features = trial.suggest_int("n_units_l{}".format(i), 16, 200)
         layers.append(out_features)
 
      return GCN(layers, [], 1)
@@ -60,7 +60,6 @@ def objective(trial):
 
     # Training of the model.
     for epoch in range(300):
-        
         for batched_graph, labels in tqdm(trainDataloader):
             # try:
             batched_graph, labels = batched_graph.to(device), labels.to(device)
@@ -83,47 +82,13 @@ def objective(trial):
 
             num_correct += (pred.round() == labels).sum().item() # TP+TN
             num_tests += len(labels) # TP+TN+FP+FN
-        losses.append(temp)
         curAcc = num_correct/num_tests
-        print("epochs:"+str(epoch)+"------------------------Acc:"+str(curAcc) + " FNRate:" + str(FN/num_tests))
-    # TODO delete and debug
-    for epoch in range(EPOCHS):
-        for batch_idx, (data, target) in enumerate(train_loader):
-            # Limiting training data for faster epochs.
-            if batch_idx * BATCHSIZE >= N_TRAIN_EXAMPLES:
-                break
-
-            data, target = data.view(data.size(0), -1).to(DEVICE), target.to(DEVICE)
-
-            optimizer.zero_grad()
-            output = model(data)
-            loss = F.nll_loss(output, target)
-            loss.backward()
-            optimizer.step()
-
-        # Validation of the model.
-        model.eval()
-        correct = 0
-        with torch.no_grad():
-            for batch_idx, (data, target) in enumerate(valid_loader):
-                # Limiting validation data.
-                if batch_idx * BATCHSIZE >= N_VALID_EXAMPLES:
-                    break
-                data, target = data.view(data.size(0), -1).to(DEVICE), target.to(DEVICE)
-                output = model(data)
-                # Get the index of the max log-probability.
-                pred = output.argmax(dim=1, keepdim=True)
-                correct += pred.eq(target.view_as(pred)).sum().item()
-
         accuracy = correct / min(len(valid_loader.dataset), N_VALID_EXAMPLES)
-
-        trial.report(accuracy, epoch)
-
-        # Handle pruning based on the intermediate value.
+        trial.report(curAcc, epoch)
         if trial.should_prune():
             raise optuna.exceptions.TrialPruned()
 
-    return accuracy
+    return curAcc
 
 if __name__ == "__main__":
     study = optuna.create_study(direction="maximize")
