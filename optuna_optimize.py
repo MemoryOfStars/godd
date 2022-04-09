@@ -54,8 +54,8 @@ def objective(trial):
     # Get the MNIST dataset.
     trainDataset = MyDataset('./train_dataset_simple.csv', batchSize, (-1, -1))
     validationDataset = MyDataset('./validation_dataset_simple.csv', batchSize, (2, 4))
-    numTrain = 500
-    numValidation = 100
+    numTrain = 2000
+    numValidation = 400
     
     trainSampler = SubsetRandomSampler(torch.arange(numTrain))
     validationSampler = SubsetRandomSampler(torch.arange(numValidation))
@@ -96,7 +96,7 @@ def objective(trial):
 
 if __name__ == "__main__":
     study = optuna.create_study(direction="maximize")
-    study.optimize(objective, n_trials=100, timeout=600)
+    study.optimize(objective, n_trials=300, timeout=600)
 
     pruned_trials = [t for t in study.trials if t.state == optuna.trial.TrialState.PRUNED]
     complete_trials = [t for t in study.trials if t.state == optuna.trial.TrialState.COMPLETE]

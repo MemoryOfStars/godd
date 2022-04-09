@@ -37,7 +37,7 @@ validationDataloader = GraphDataLoader(validationDataset, sampler=validationSamp
 from gcn import GCN
 
 device = torch.device("cuda:0")
-inout_layers = [34, 80, 112, 128, 144, 160, 176, 144, 96, 64, 32]
+inout_layers = [34, 67, 192, 100, 154, 117, 54, 43, 95, 96, 170, 123, 33, 32]
 gcn_index = []
 gnn = GCN(inout_layers, gcn_index, 1).to(device)
 
