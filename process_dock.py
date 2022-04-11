@@ -1,6 +1,6 @@
 import os
 
-conf_path = '../v2020_dock_conf/'
+conf_path = '/home/kmk_gmx/Desktop/bioinfo/blast_datas/blast_docking/docking_confs/'
 vina_path = './vina'
 count = 0
 

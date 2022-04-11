@@ -37,7 +37,7 @@ validationDataloader = GraphDataLoader(validationDataset, sampler=validationSamp
 from gcn import GCN
 
 device = torch.device("cuda:0")
-inout_layers = [34, 67, 192, 100, 154, 117, 54, 43, 95, 96, 170, 123, 33, 32]
+inout_layers = [34, 41, 114, 184, 41, 191, 73, 34, 46, 57, 61, 32]
 gcn_index = []
 gnn = GCN(inout_layers, gcn_index, 1).to(device)
 
@@ -46,7 +46,7 @@ import itertools
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 
-optimizer = torch.optim.Adadelta(gnn.parameters(), lr=0.01)
+optimizer = torch.optim.RMSprop(gnn.parameters(), lr=0.0008826435426982003)
 all_logits = []
 losses = []
 test_acc = []
