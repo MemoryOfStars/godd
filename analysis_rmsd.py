@@ -24,13 +24,8 @@ for dock_name in os.listdir(dockings_dir):
     if rmsd < 10:
         rmsds.append(rmsd)
 print(len(rmsds), rmsds[0])
-import seaborn as sns
 import matplotlib.pyplot as plt
-from scipy.stats import norm
+plt.xlabel('RMSD')
+plt.hist(rmsds)
 
-fig = plt.figure()
-ax = fig.add_subplot(1,1,1)
-ax.set_title("RMSD Trend")
-rmsdContFigs = sns.distplot(rmsds, axlabel='RMSD', color="red", ax=ax)
-
-rmsdContFigs.get_figure().savefig('./graphs/blast_docking_rmsd.png', dpi=400)
+plt.savefig('./graphs/blast_docking_rmsd.png', dpi=400)
