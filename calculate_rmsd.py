@@ -1,7 +1,11 @@
 import os
 import numpy as np
 import math
-
+'''
+parameter: 
+naturalFile:真实分子的pdbqt文件路径
+dockingFile：docking的pdbqt文件路径
+'''
 
 class RMSDCalculator():
     def __init__(self):
