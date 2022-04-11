@@ -21,7 +21,9 @@ for dock_name in os.listdir(dockings_dir):
     dock_id = dock_name[:4]
     ligandDir = getLigandDir(blastDict[dock_id])
     rmsd = cal.calculateRMSD(ligandDir, dockings_dir+dock_name)
-
+    if rmsd < 10:
+        rmsds.append(rmsd)
+print(len(rmsds), rmsds[0])
 import seaborn as sns
 import matplotlib.pyplot as plt
 from scipy.stats import norm
