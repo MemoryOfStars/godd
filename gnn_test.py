@@ -15,7 +15,7 @@ from gcn import GCN
 from my_dataset import MyDataset
 
 my_batch_size = 30
-my_dataset = MyDataset('./test_simple.csv', my_batch_size, (-1, -1))
+my_dataset = MyDataset('./test_simple.csv', my_batch_size, (2, 4))
 
 from dgl.dataloading.pytorch import GraphDataLoader
 from torch.utils.data.sampler import SubsetRandomSampler
@@ -26,7 +26,7 @@ print("dataset length:", num_examples)
 test_sampler = SubsetRandomSampler(torch.arange(num_examples))
 test_dataloader = GraphDataLoader(my_dataset, sampler=test_sampler, batch_size=my_batch_size, drop_last=False)
 
-modelPath = '../models/gcn1645427333newLayers.pkl'
+modelPath = '../models/gcn1649678138newLayers.pkl'
 model = torch.load(modelPath)
 
 print(model)
