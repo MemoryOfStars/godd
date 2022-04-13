@@ -1,57 +1,3 @@
-positivePDBDir = "../positive_truncated_data/"
-positiveTarDir = "/data/bilab/kaku/positive_graph_save8A/"
-negativePDBDir = "../negative_pdb/"
-negativeTarDir = "/data/bilab/kaku/negative_graph_save8A/"
-
-valid_elements = ['N', 'C', 'O', 'S', 'H', 'P', 'F', 'CL',  'BR',  'ZN']
-element_onehot = {}
-for idx, ele in enumerate(valid_elements):
-    element_onehot[ele] = [0]*len(valid_elements)
-    element_onehot[ele][idx] = 1
-def ligandCenter(pdbData):
-    minX, minY, minZ = 99999.0, 99999.0, 99999.0
-    maxX, maxY, maxZ = -99999.0, -99999.0, -99999.0
-    for data in pdbData:
-        if data[1] == 0:     # Ignore Protein Atoms
-            continue
-        minX = data[3] if data[3]<minX else minX
-        minY = data[4] if data[4]<minY else minY
-        minZ = data[5] if data[5]<minZ else minZ
-        maxX = data[3] if data[3]>maxX else maxX
-        maxY = data[4] if data[4]>maxY else maxY
-        maxZ = data[5] if data[5]>maxZ else maxZ
-    return minX, minY, minZ, maxX, maxY, maxZ
-
-'''
-def fartherThan8A(ligandBox, atomPosition):
-    x, y, z = atomPosition[0], atomPosition[1], atomPosition[2]
-    minX, minY, minZ, maxX, maxY, maxZ = ligandBox
-    if minX<x<maxX and minY<y<maxY and minZ<z<maxZ:
-        return False
-    x_dis = x - minX
-    y_dis = y - minY
-    z_dis = z - minZ
-    disMin = math.sqrt(x_dis**2+y_dis**2+z_dis**2)
-
-    x_dis = x - maxX
-    y_dis = y - maxY
-    z_dis = z - maxZ
-    disMax = math.sqrt(x_dis**2+y_dis**2+z_dis**2)
-    return disMin>8 and disMax>8
-'''
-    
-def fartherThan8A(ligandBox, atomPosition):
-    x, y, z = atomPosition[0], atomPosition[1], atomPosition[2]
-    minX, minY, minZ, maxX, maxY, maxZ = ligandBox
-
-    centerX, centerY, centerZ = (minX+maxX)/2, (minY+maxY)/2, (minZ+maxZ)/2
-    disMin = math.sqrt((centerX-minX)**2+(centerY-minY)**2+(centerZ-minZ)**2)
-    disMax = math.sqrt((centerX-maxX)**2+(centerY-maxY)**2+(centerZ-maxZ)**2)
-    radius = disMin if disMin > disMax else disMax
-    
-    dis = math.sqrt((centerX-x)**2+(centerY-y)**2+(centerZ-z)**2)
-    return (dis-radius)>8
-
 from dgl.data import DGLDataset
 import os
 import numpy as np
@@ -60,64 +6,168 @@ import torch as th
 import dgl
 import json
 import math
+from calculate_rmsd import RMSDCalculator
 
-for pdb_name in os.listdir(positivePDBDir):
-    pdb_data = []                        #一个pdb文件中的信息汇总
-    # [element_name, protein_or_ligand, chain_id, x, y, z]
-    with open(positivePDBDir+pdb_name) as pdb_file:
-        lines = pdb_file.readlines()
-        flag = False
-        for i, line in enumerate(lines):
-            if (line[:4]=='ATOM' or line[:6]=='HETATM') and line[76:78].strip() in valid_elements:
-                atom = ['C', 0, 'A', 0.0, 0.0, 0.0]#0代表蛋白质分子。 1代表ligand分子
-                atom[0] = line[76:78].strip()                   #element_name
-                atom[1] = 0 if line[:4]=='ATOM' else 1  #protein or ligand
-                if (i > 0 and int(line[6:11]) < int(lines[i-1][6:11])) or flag:
-                    flag = True
-                    atom[1] = 1
-                atom[2] = line[21]                      #chain_id
-                atom[3] = float(line[30:38].strip())    #x
-                atom[4] = float(line[38:46].strip())    #y
-                atom[5] = float(line[46:54].strip())    #z
-                pdb_data.append(atom)
-    ligandBox = ligandCenter(pdb_data)
-    graph_edata = [] #edge weights
+receptorPDBQTDir = '/home/kmk_gmx/Desktop/bioinfo/blast_datas/blast_docking/blast_pdbqt/'
+ligandPDBQTDir = '/home/kmk_gmx/Desktop/bioinfo/blast_datas/blast_docking/split_dockings/'      # ligand Dir (file name eg:5orh.pdbqt)
+outputGraphDir = '/home/kmk_gmx/Desktop/bioinfo/blast_datas/blast_docking/graphs/' 
+
+receptorFileNames = os.listdir(receptorPDBQTDir)
+ligandFileNames = os.listdir(ligandPDBQTDir)
+def getAllLigNames(recepId):
+    results = []
+    for ligFname in ligandFileNames:
+        if recepId in ligFname:
+            results.append(ligandPDBQTDir + ligFname)
+    return results
+
+generateFilePairs = []
+cal = RMSDCalculator()
+for recep in os.listdir(receptorPDBQTDir):
+    recepId = recep[:4]
+    recepFilePath = receptorPDBQTDir + recep
+    curLigandFilePaths = getAllLigNames(recepId)
+    for fname in curLigandFilePaths:
+        # rmsd = cal.calculateRMSD(recepFile, ligandFile)
+        generateFilePairs.append((recepFilePath, fname))
+    
+def extractAtomLines(pdbqtLines):
+    atomLines = []
+    for line in pdbqtLines:
+        l = line.strip()
+        if l[:4] != 'ATOM':
+            continue
+        pdbqtCols = []
+        pdbqtCols.append(l[0:6].strip())
+        pdbqtCols.append(l[6:11].strip())
+        pdbqtCols.append(l[12:16].strip())
+        pdbqtCols.append(l[16:17].strip())
+        pdbqtCols.append(l[17:21].strip())
+        pdbqtCols.append(l[21:22].strip())
+        pdbqtCols.append(l[22:26].strip())
+        pdbqtCols.append(l[26:27].strip())
+        pdbqtCols.append(l[30:38].strip())
+        pdbqtCols.append(l[38:46].strip())
+        pdbqtCols.append(l[46:54].strip())
+        pdbqtCols.append(l[54:60].strip())
+        pdbqtCols.append(l[60:66].strip())
+        pdbqtCols.append(l[66:76].strip())
+        pdbqtCols.append(l[76:].strip())
+        if pdbqtCols[PDBQT_TYPE_INDEX].upper() not in ELEMENT_TYPE:
+            continue
+        atomLines.append(pdbqtCols)
+    return atomLines
+
+PDBQT_X_POS_INDEX = 8
+PDBQT_Y_POS_INDEX = 9
+PDBQT_Z_POS_INDEX = 10
+PDBQT_TYPE_INDEX  = 14
+ELEMENT_TYPE = ['HD', 'C', 'A', 'N', 'NA', 'OA', 'F', 'MG', 'P', 'S', 'CL', 'CA', 'MN', 'FE', 'ZN', 'BR', 'I']
+RECEP_ELEMENT_ONEHOT = {}
+LIG_ELEMENT_ONEHOT = {}
+for idx, ele in enumerate(ELEMENT_TYPE):
+    RECEP_ELEMENT_ONEHOT[ele] = [0]*len(ELEMENT_TYPE)*2
+    RECEP_ELEMENT_ONEHOT[ele][idx] = 1
+for idx, ele in enumerate(ELEMENT_TYPE):
+    LIG_ELEMENT_ONEHOT[ele] = [0]*len(ELEMENT_TYPE)*2
+    LIG_ELEMENT_ONEHOT[ele][idx+len(ELEMENT_TYPE)] = 1
+
+
+def distanceIn2Atoms(atom1, atom2):
+    atom1x = float(atom1[PDBQT_X_POS_INDEX])
+    atom1y = float(atom1[PDBQT_Y_POS_INDEX])
+    atom1z = float(atom1[PDBQT_Z_POS_INDEX])
+    atom2x = float(atom2[PDBQT_X_POS_INDEX])
+    atom2y = float(atom2[PDBQT_Y_POS_INDEX])
+    atom2z = float(atom2[PDBQT_Z_POS_INDEX])
+    return math.sqrt((atom1x-atom2x)**2 + (atom1y-atom2y)**2 + (atom1z-atom2z)**2)
+
+def distancesFromLigand(atom, ligand):
+    atomx = float(atom[PDBQT_X_POS_INDEX])
+    atomy = float(atom[PDBQT_Y_POS_INDEX])
+    atomz = float(atom[PDBQT_Z_POS_INDEX])
+    distances = []
+    for a in ligand:
+        ax = float(a[PDBQT_X_POS_INDEX])
+        ay = float(a[PDBQT_Y_POS_INDEX])
+        az = float(a[PDBQT_Z_POS_INDEX])
+        dist = math.sqrt((atomx-ax)**2 + (atomy-ay)**2 + (atomz-az)**2)
+        distances.append(dist)
+    return distances
+
+def minDisFromLigand(atom, ligand):
+    distances = distancesFromLigand(atom, ligand)
+    return min(distances)
+
+def generateDGL(receptor, ligand, name):
     u_set = []
     v_set = []
     graph_ndata = []
-    nodeDict = {}
-    pos = 0
-    for i in range(len(pdb_data)):
-        if fartherThan8A(ligandBox, [pdb_data[i][3], pdb_data[i][4], pdb_data[i][5]]):
-            continue
-        graph_ndata.append([element_onehot[pdb_data[i][0]]]) #[[ele1, other_feature], [ele2, other_feature],....]
-        nodeDict[i] = pos
-        pos += 1
-    for i in nodeDict.items():
-        for j in nodeDict.items():
-            x_dis = pdb_data[i[0]][3] - pdb_data[j[0]][3]
-            y_dis = pdb_data[i[0]][4] - pdb_data[j[0]][4]
-            z_dis = pdb_data[i[0]][5] - pdb_data[j[0]][5]
-            dis = math.sqrt(x_dis**2+y_dis**2+z_dis**2)
-            if dis < 2.0 and pdb_data[i[0]][1]==pdb_data[j[0]][1] and pdb_data[i[0]][2] == pdb_data[j[0]][2]:
+    graph_edata = [] #edge weights
+    for atom in receptor:
+        if atom[PDBQT_TYPE_INDEX].upper() not in RECEP_ELEMENT_ONEHOT:
+            print(atom[PDBQT_TYPE_INDEX])
+        #print(atom)
+        graph_ndata.append([RECEP_ELEMENT_ONEHOT[atom[PDBQT_TYPE_INDEX].upper()]])
+    for atom in ligand:
+        if atom[PDBQT_TYPE_INDEX].upper() not in RECEP_ELEMENT_ONEHOT:
+            print(atom[PDBQT_TYPE_INDEX])
+        graph_ndata.append([LIG_ELEMENT_ONEHOT[atom[PDBQT_TYPE_INDEX].upper()]]) 
+        
+    for i, atomI in enumerate(receptor + ligand):
+        ligI  = False if i < len(receptor) else True  # whether it's a ligand atom
+        for j, atomJ in enumerate(receptor + ligand):
+            ligJ  = False if j < len(receptor) else True
+            dis = distanceIn2Atoms(atomI, atomJ)
+            if dis < 2.0 and ligI == ligJ:
                 graph_edata.append([1])
-                graph_edata.append([1])
-                u_set.append(i[1])
-                v_set.append(j[1])
-                u_set.append(j[1])
-                v_set.append(i[1])
-            elif dis < 5.0 and (pdb_data[i[0]][1]==pdb_data[j[0]][1] or pdb_data[i[0]][2] == pdb_data[j[0]][2]):
+                u_set.append(i)
+                v_set.append(j)
+            elif dis < 5.0 and ligI != ligJ:
                 graph_edata.append([dis])
-                graph_edata.append([dis])
-                u_set.append(i[1])
-                v_set.append(j[1])
-                u_set.append(j[1])
-                v_set.append(i[1])
+                u_set.append(i)
+                v_set.append(j)
     g = dgl.DGLGraph()
     g.add_nodes(len(graph_ndata))
     g.add_edges(u_set, v_set)
-    print(pdb_name, len(pdb_data), len(graph_edata), len(graph_ndata), len(u_set), len(v_set))
+    print(name, len(graph_ndata), len(graph_edata), len(graph_ndata), len(u_set), len(v_set))
     g.edata['h'] = th.tensor(graph_edata)
     g.ndata['h'] = th.tensor(graph_ndata)
 
-    dgl.save_graphs(positiveTarDir+pdb_name[:-4], [g])
+    dgl.save_graphs(name, [g])
+
+def generatePosiDGL(recep, lig, name):
+    recepAtomIn8 = []
+    for atom in recep:
+        if minDisFromLigand(atom, lig) > 8:
+            continue
+        recepAtomIn8.append(atom)
+    generateDGL(recepAtomIn8, lig, name)
+
+def generateNegaDGL(recep, docks, dockNames):
+    if len(docks) == 0:
+        return
+    for i, dock in enumerate(docks):
+        recepAtomIn8 = []
+        for atom in recep:
+            if minDisFromLigand(atom, dock)>8:
+                continue
+            recepAtomIn8.append(atom)
+        generateDGL(recepAtomIn8, dock, negativeTarDir + dockNames[i])
+
+
+# generate test dataset
+for pair in generateFilePairs:
+    recepFile = open(pair[0])
+    ligFile   = open(pair[1])
+    name = ligFile[-19:-6]
+    
+    recep = extractAtomLines(recepFile.readlines())
+    lig   = extractAtomLines(ligFile.readlines())
+    
+    generatePosiDGL(recep, lig, outputGraphDir + name)
+    #generateNegaDGL(recep, docks, dockNames)
+    
+    # print(name[:4], len(docks))
+    ligFile.close()
+    recepFile.close()
