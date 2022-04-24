@@ -9,8 +9,8 @@ import math
 from calculate_rmsd import RMSDCalculator
 
 receptorPDBQTDir = '/home/kmk_gmx/Desktop/bioinfo/blast_datas/blast_docking/blast_pdbqt/'
-ligandPDBQTDir = '/home/kmk_gmx/Desktop/bioinfo/blast_datas/blast_docking/split_dockings/'      # ligand Dir (file name eg:5orh.pdbqt)
-outputGraphDir = '/home/kmk_gmx/Desktop/bioinfo/blast_datas/blast_docking/graphs/' 
+ligandPDBQTDir = '/home/kmk_gmx/Desktop/bioinfo/blast_datas/blast_docking/splited_dockings/'      # ligand Dir (file name eg:5orh.pdbqt)
+outputGraphDir = '/home/kmk_gmx/Desktop/bioinfo/blast_datas/blast_dgl/' 
 
 receptorFileNames = os.listdir(receptorPDBQTDir)
 ligandFileNames = os.listdir(ligandPDBQTDir)
@@ -157,11 +157,13 @@ def generateNegaDGL(recep, docks, dockNames):
 
 
 # generate test dataset
+logFile = open('./dgl.log', 'w+')
 for pair in generateFilePairs:
     recepFile = open(pair[0])
     ligFile   = open(pair[1])
-    name = ligFile[-19:-6]
+    name = pair[1][-19:-6]
     
+    print(name, file=logFile)
     recep = extractAtomLines(recepFile.readlines())
     lig   = extractAtomLines(ligFile.readlines())
     

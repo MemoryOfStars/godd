@@ -1,31 +1,40 @@
-import numpy as np
 import os
+import pymol
 import pandas as pd
-from calculate_rmsd import RMSDCalculator
+
+cmd = pymol.cmd
 
 # base_dir是最原始的pdb文件
+recep_dir = '/home/kmk_gmx/Desktop/bioinfo/receptor_dock/'
 ligand_dir = '/home/kmk_gmx/Desktop/bioinfo/ligand_dock/'
-dockings_dir = '/home/kmk_gmx/Desktop/bioinfo/blast_datas/blast_docking/split_docking/'
+blast_dir = '/home/kmk_gmx/Desktop/bioinfo/blast_datas/blast_docking/blast_pdbqt/'
+dockings_dir = '/home/kmk_gmx/Desktop/bioinfo/blast_datas/blast_docking/splited_dockings/'
 
 source2blast = pd.read_csv('./source2blast.csv')
 blastDict = {}
 for i, item in source2blast.iterrows():
     blastDict[item['blast']] = item['source']
 
-def getLigandDir(pdb_id):
-    return ligand_dir + pdb_id + '.pdbqt'
-
-cal = RMSDCalculator()
-rmsds = []
+dock_names = []
+dock_rmsds = []
 for dock_name in os.listdir(dockings_dir):
-    dock_id = dock_name[:4]
-    ligandDir = getLigandDir(blastDict[dock_id])
-    rmsd = cal.calculateRMSD(ligandDir, dockings_dir+dock_name)
-    if rmsd < 10:
-        rmsds.append(rmsd)
-print(len(rmsds), rmsds[0])
-import matplotlib.pyplot as plt
-plt.xlabel('RMSD')
-plt.hist(rmsds)
+    blast_id = dock_name[:4]
+    source_id = blastDict[blast_id]
+    recep_pymol = recep_dir + source_id + '.pdbqt'
+    lig_pymol = ligand_dir + source_id + '.pdbqt'
+    blast_pymol = blast_dir + blast_id + '.pdbqt'
+    dock_pymol = dockings_dir + dock_name
+    cmd.load(recep_pymol, 'recep')
+    cmd.load(lig_pymol, 'lig')
+    cmd.load(blast_pymol, 'blast')
+    cmd.load(dock_pymol, 'dock')
+    cmd.align('blast', 'recep')
+    cmd.matrix_copy('blast', 'dock')
+    dist = cmd.align('lig', 'dock')
+    print(lig_pymol, dock_pymol, dist)
+    dock_names.append(dock_name)
+    dock_rmsds.append(dist[3])
+    cmd.delete('all')
 
-plt.savefig('./graphs/blast_docking_rmsd.png', dpi=400)
+df = pd.DataFrame({'dock_name':dock_names, 'rmsd':dock_rmsds})
+df.to_csv('./blast_rmsds.csv')
