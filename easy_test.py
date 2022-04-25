@@ -20,7 +20,8 @@ model = torch.load(modelPath)
 
 print(model)
 
-file_path = '/home/kmk_gmx/Desktop/bioinfo/blast_datas/blast_dgl/'
+#file_path = '/home/kmk_gmx/Desktop/bioinfo/blast_datas/blast_dgl/'
+file_path = '/home/kmk_gmx/Desktop/bioinfo/positive_graph_featureSimplified/'
 file_names = []
 predictions = []
 
@@ -29,7 +30,9 @@ for i, f in enumerate(os.listdir(file_path)):
     pred = model(g, g.ndata['h'].float()).squeeze(1).squeeze(1)
     file_names.append(f)
     predictions.append(pred.round().item())
-    print('\r' + str(i), end='')
+    #print('\r' + str(i), pred, end='')
 
-df = pd.DataFrame({"name":file_names, "pred":predictions})
-df.to_csv('blast_pred.csv')
+print(predictions.count(1.0)/len(predictions))
+
+#df = pd.DataFrame({"name":file_names, "pred":predictions})
+#df.to_csv('blast_pred.csv')
