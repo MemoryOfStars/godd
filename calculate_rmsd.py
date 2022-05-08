@@ -40,3 +40,6 @@ class RMSDCalculator():
         # print(rmsd)
 
         return rmsd
+
+if __name__ == '__main__':
+    cal = RMSDCalculator()

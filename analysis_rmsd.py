@@ -9,6 +9,7 @@ recep_dir = '/home/kmk_gmx/Desktop/bioinfo/receptor_dock/'
 ligand_dir = '/home/kmk_gmx/Desktop/bioinfo/ligand_dock/'
 blast_dir = '/home/kmk_gmx/Desktop/bioinfo/blast_datas/blast_docking/blast_pdbqt/'
 dockings_dir = '/home/kmk_gmx/Desktop/bioinfo/blast_datas/blast_docking/splited_dockings/'
+aligned_dock_dir = '/home/kmk_gmx/Desktop/bioinfo/blast_datas/blast_docking/aligned_docks/'
 
 source2blast = pd.read_csv('./source2blast.csv')
 blastDict = {}
@@ -30,11 +31,6 @@ for dock_name in os.listdir(dockings_dir):
     cmd.load(dock_pymol, 'dock')
     cmd.align('blast', 'recep')
     cmd.matrix_copy('blast', 'dock')
-    dist = cmd.align('lig', 'dock')
-    print(lig_pymol, dock_pymol, dist)
-    dock_names.append(dock_name)
-    dock_rmsds.append(dist[3])
+    aligned_name = aligned_dock_dir + dock_name + '.pdb'
+    cmd.save(aligned_name, 'dock')
     cmd.delete('all')
-
-df = pd.DataFrame({'dock_name':dock_names, 'rmsd':dock_rmsds})
-df.to_csv('./blast_rmsds.csv')

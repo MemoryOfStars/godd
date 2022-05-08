@@ -6,31 +6,34 @@ import pandas as pd
 base_dir = '/home/kmk_gmx/Desktop/bioinfo/blast_datas/blast_docking/pdb_truncated/'
 receptor_dir = '/home/kmk_gmx/Desktop/bioinfo/blast_datas/blast_docking/blast_pdbqt/'
 ligand_dir = '/home/kmk_gmx/Desktop/bioinfo/ligand_dock/'
-config_dir = '/home/kmk_gmx/Desktop/bioinfo/blast_datas/blast_docking/docking_confs/'
-output_dir = '/home/kmk_gmx/Desktop/bioinfo/blast_datas/blast_docking/docking_output/'
+config_dir = '/home/kmk_gmx/Desktop/bioinfo/blast_datas/blast_docking/docking_confs_pair/'
+output_dir = '/home/kmk_gmx/Desktop/bioinfo/blast_datas/blast_docking/docking_output_pair/'
 
 source2blast = pd.read_csv('./source2blast.csv')
 blastDict = {}
 for i, item in source2blast.iterrows():
-    blastDict[item['blast']] = item['source']
+    if item['blast'] not in blastDict:
+        blastDict[item['blast']] = [item['source']]
+    blastDict[item['blast']].append(item['source'])
+
 
 def getLigandDir(pdb_id):
     return ligand_dir + pdb_id + '.pdbqt'
 
 for pdb_name in os.listdir(receptor_dir):
-    pdb_id = pdb_name[3:-6]
+    pdb_id = pdb_name[:4]
     print("pdb_id:", pdb_id)
     pocket_file_name = receptor_dir+pdb_name
-    config_file = []
+    pocket_file = open(pocket_file_name)
+    pocket = pocket_file.readlines()
     xs = [1e5,-1e5];ys = [1e5,-1e5];zs = [1e5,-1e5]
 
-    sourceLigandId = blastDict[pdb_id]
-    print("source ligand name:", sourceLigandId)
-    config_file.append('receptor = '+receptor_dir+pdb_id+'.pdbqt\n')
-    config_file.append('ligand = '+ getLigandDir(sourceLigandId) + '\n')
+    sourceLigandIds = blastDict[pdb_id]
+    for sourceLigandId in sourceLigandIds:
+        config_file = []
+        config_file.append('receptor = '+receptor_dir+pdb_id+'.pdbqt\n')
+        config_file.append('ligand = '+ getLigandDir(sourceLigandId) + '\n')
 
-    with open(pocket_file_name) as pocket_file:
-        pocket = pocket_file.readlines()
         flag = False
         for line in pocket:
             if line[:4]=='ATOM':
@@ -47,9 +50,11 @@ for pdb_name in os.listdir(receptor_dir):
         config_file.append('size_x = '+str(xsize)+'\n')
         config_file.append('size_y = '+str(ysize)+'\n')
         config_file.append('size_z = '+str(zsize)+'\n')
-    config_file.append('energy_range = 4\n')
-    config_file.append('exhaustiveness = 9\n')
-    config_file.append('num_modes = 9\n')
-    config_file.append('out = '+output_dir + pdb_id +'.pdbqt\n')
-    with open(config_dir+pdb_id+'.txt', 'w+') as config:
-        config.writelines(config_file)
+        
+        config_file.append('energy_range = 4\n')
+        config_file.append('exhaustiveness = 9\n')
+        config_file.append('num_modes = 9\n')
+        config_file.append('out = ' + output_dir + pdb_id + '_' + sourceLigandId +'.pdbqt\n')
+        with open(config_dir + pdb_id + '_' + sourceLigandId + '.txt', 'w+') as config:
+            config.writelines(config_file)
+        print("ligand_source pair:", config_dir + pdb_id + '_' + sourceLigandId)
