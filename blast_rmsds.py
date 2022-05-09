@@ -1,5 +1,7 @@
 import os
 import pandas as pd
+import numpy as np
+import math
 
 ligand_dir = '/home/kmk_gmx/Desktop/bioinfo/ligand_dock/'
 aligned_dock_dir = '/home/kmk_gmx/Desktop/bioinfo/blast_datas/blast_docking/aligned_docks/'
@@ -13,11 +15,10 @@ blast_docks = []
 rmsds = []
 for fname in os.listdir(aligned_dock_dir):
     blast_id = fname[:4]
+    print(fname)
     lig_name = blastDict[blast_id]
-    aligned = open(aligned_dock_dir + fname, 'r')
-    source = open(ligand_dir + lig_name + , 'r')
     oriX = [];oriY = [];oriZ = []
-    with open(ligand_dir + lig_name +) as natFile:
+    with open(ligand_dir + lig_name + '.pdbqt') as natFile:
         for line in natFile.readlines():
             if(line[:4] == 'ATOM'):
                 oriX.append(float(line[31:38].strip()))
