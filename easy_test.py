@@ -20,8 +20,8 @@ model = torch.load(modelPath)
 
 print(model)
 
-#file_path = '/home/kmk_gmx/Desktop/bioinfo/blast_datas/blast_dgl/'
-file_path = '/home/kmk_gmx/Desktop/bioinfo/positive_graph_featureSimplified/'
+file_path = '/home/kmk_gmx/Desktop/bioinfo/blast_datas/aligned_blast_dgl/'
+#file_path = '/home/kmk_gmx/Desktop/'
 file_names = []
 predictions = []
 
@@ -34,5 +34,5 @@ for i, f in enumerate(os.listdir(file_path)):
 
 print(predictions.count(1.0)/len(predictions))
 
-#df = pd.DataFrame({"name":file_names, "pred":predictions})
-#df.to_csv('blast_pred.csv')
+df = pd.DataFrame({"name":file_names, "pred":predictions})
+df.to_csv('blast_aligned_pred.csv')

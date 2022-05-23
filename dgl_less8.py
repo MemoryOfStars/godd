@@ -8,23 +8,33 @@ import json
 import math
 from calculate_rmsd import RMSDCalculator
 
-receptorPDBQTDir = '/home/kmk_gmx/Desktop/bioinfo/blast_datas/blast_docking/blast_pdbqt/'
-ligandPDBQTDir = '/home/kmk_gmx/Desktop/bioinfo/blast_datas/blast_docking/splited_dockings/'      # ligand Dir (file name eg:5orh.pdbqt)
-outputGraphDir = '/home/kmk_gmx/Desktop/bioinfo/blast_datas/blast_dgl/' 
+receptorPDBQTDir = '/home/kmk_gmx/Desktop/bioinfo/blast_datas/blast_docking/aligned_truncated_pdbqt/'
+ligandPDBQTDir = '/home/kmk_gmx/Desktop/bioinfo/blast_datas/blast_docking/aligned_pdbqt_dock/'      # ligand Dir (file name eg:5orh.pdbqt)
+outputGraphDir = '/home/kmk_gmx/Desktop/bioinfo/blast_datas/aligned_blast_dgl/' 
 
 receptorFileNames = os.listdir(receptorPDBQTDir)
 ligandFileNames = os.listdir(ligandPDBQTDir)
+ligPrefixDict = {}
+for ligFname in ligandFileNames:
+    if ligFname[:9] in ligPrefixDict:
+        ligPrefixDict[ligFname[:9]].append(ligandPDBQTDir + ligFname)
+        continue
+    ligPrefixDict[ligFname[:9]] = []
 def getAllLigNames(recepId):
-    results = []
+    if recepId not in ligPrefixDict:
+        return []
+    return ligPrefixDict[recepId]
+    '''
     for ligFname in ligandFileNames:
         if recepId in ligFname:
             results.append(ligandPDBQTDir + ligFname)
     return results
+    '''
 
 generateFilePairs = []
 cal = RMSDCalculator()
 for recep in os.listdir(receptorPDBQTDir):
-    recepId = recep[:4]
+    recepId = recep[:9]
     recepFilePath = receptorPDBQTDir + recep
     curLigandFilePaths = getAllLigNames(recepId)
     for fname in curLigandFilePaths:
@@ -157,7 +167,7 @@ def generateNegaDGL(recep, docks, dockNames):
 
 
 # generate test dataset
-logFile = open('./dgl.log', 'w+')
+logFile = open('./aligned_dgl.log', 'w+')
 for pair in generateFilePairs:
     recepFile = open(pair[0])
     ligFile   = open(pair[1])

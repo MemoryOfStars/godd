@@ -3,8 +3,8 @@ import os
 #v2020Dir = '../refined-set/'
 #v2019Dir = '../refined_set_v2019/'
 #v2019s = os.listdir(v2019Dir)
-input_dir = '/home/kmk_gmx/Desktop/bioinfo/blast_datas/blast_docking/pdb_truncated/'
-output_dir = '/home/kmk_gmx/Desktop/bioinfo/blast_datas/blast_docking/blast_pdbqt/'
+input_dir = '/home/kmk_gmx/Desktop/bioinfo/blast_datas/aligned_truncated_pdb/'
+output_dir = '/home/kmk_gmx/Desktop/bioinfo/blast_datas/blast_docking/aligned_pdbqt/'
 '''
 testNames = []
 for v2020 in os.listdir(v2020Dir):
