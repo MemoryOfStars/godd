@@ -4,17 +4,22 @@ import numpy as np
 import math
 
 ligand_dir = '/home/kmk_gmx/Desktop/bioinfo/ligand_dock/'
-aligned_dock_dir = '/home/kmk_gmx/Desktop/bioinfo/blast_datas/blast_docking/aligned_docks/'
+aligned_dock_dir = '/home/kmk_gmx/Desktop/bioinfo/blast_datas/blast_docking/aligned_pdbqt_dock/'
 
+'''
 source2blast = pd.read_csv('./source2blast.csv')
+'''
 blastDict = {}
-for i, item in source2blast.iterrows():
-    blastDict[item['blast']] = item['source']
+for i in os.listdir(aligned_dock_dir):
+    blastDict[i[:-6]] = i[5:9]
+
 
 blast_docks = []
 rmsds = []
 for fname in os.listdir(aligned_dock_dir):
-    blast_id = fname[:4]
+    if len(fname) != len('5orh_5orh_ligand_1.pdbqt'):
+        continue
+    blast_id = fname[:-6]
     print(fname)
     lig_name = blastDict[blast_id]
     oriX = [];oriY = [];oriZ = []
@@ -40,4 +45,4 @@ for fname in os.listdir(aligned_dock_dir):
     rmsds.append(rmsd)
 
 df = pd.DataFrame({'blast':blast_docks, 'rmsd':rmsds})
-df.to_csv('./blast_rmsds.csv')
+df.to_csv('./blast_aligned_rmsds.csv')

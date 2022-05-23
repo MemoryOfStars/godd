@@ -16,6 +16,8 @@ receptorFileNames = os.listdir(receptorPDBQTDir)
 ligandFileNames = os.listdir(ligandPDBQTDir)
 ligPrefixDict = {}
 for ligFname in ligandFileNames:
+    if len(ligFname) != len("5orh_5orh_lignad_1.pdbqt"):
+        continue
     if ligFname[:9] in ligPrefixDict:
         ligPrefixDict[ligFname[:9]].append(ligandPDBQTDir + ligFname)
         continue
@@ -171,13 +173,13 @@ logFile = open('./aligned_dgl.log', 'w+')
 for pair in generateFilePairs:
     recepFile = open(pair[0])
     ligFile   = open(pair[1])
-    name = pair[1][-19:-6]
+    name = pair[1][:-6]
     
     print(name, file=logFile)
     recep = extractAtomLines(recepFile.readlines())
     lig   = extractAtomLines(ligFile.readlines())
     
-    generatePosiDGL(recep, lig, outputGraphDir + name)
+    generatePosiDGL(recep, lig, outputGraphDir + name[-18:])
     #generateNegaDGL(recep, docks, dockNames)
     
     # print(name[:4], len(docks))
