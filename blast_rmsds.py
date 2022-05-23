@@ -41,7 +41,7 @@ for fname in os.listdir(aligned_dock_dir):
                 dockZ.append(float(line[46:54].strip()))
     dockX = np.array(dockX);dockY = np.array(dockY);dockZ = np.array(dockZ)
     rmsd = math.sqrt(((dockX-oriX)**2 + (dockY-oriY)**2 + (dockZ-oriZ)**2).sum()/n)
-    blast_docks.append(fname[:13])
+    blast_docks.append(fname[:18])
     rmsds.append(rmsd)
 
 df = pd.DataFrame({'blast':blast_docks, 'rmsd':rmsds})
