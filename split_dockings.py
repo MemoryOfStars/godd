@@ -5,7 +5,7 @@ docking_path = "/home/kmk_gmx/Desktop/bioinfo/blast_datas/blast_docking/aligned_
 target_path = "/home/kmk_gmx/Desktop/bioinfo/blast_datas/blast_docking/aligned_pdbqt_dock_splitted/"
 
 for pdbqt in os.listdir(docking_path):
-    #if len(pdbqt) == 10:
-    os.system(command + docking_path + pdbqt)
-    os.system("mv "+docking_path+pdbqt + ' ' + target_path)
+    if len(pdbqt) == len('10gs_1lbk.pdbqt'):
+        os.system(command + docking_path + pdbqt)
+        os.system("mv "+docking_path+pdbqt + ' ' + target_path)
     

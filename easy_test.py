@@ -29,10 +29,9 @@ for i, f in enumerate(os.listdir(file_path)):
     g = dgl.load_graphs(file_path+f)[0][0].to(device) # load_graphs returns tuple(graphs, labels)
     pred = model(g, g.ndata['h'].float()).squeeze(1).squeeze(1)
     file_names.append(f)
-    predictions.append(pred.round().item())
-    #print('\r' + str(i), pred, end='')
+    predictions.append(pred.item())
+    print('\r' + str(i), pred, end='')
 
-print(predictions.count(1.0)/len(predictions))
 
 df = pd.DataFrame({"name":file_names, "pred":predictions})
 df.to_csv('blast_aligned_pred.csv')
