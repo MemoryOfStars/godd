@@ -8,20 +8,26 @@ import json
 import math
 from calculate_rmsd import RMSDCalculator
 
-receptorPDBQTDir = '/home/kmk_gmx/Desktop/bioinfo/blast_datas/blast_docking/aligned_truncated_pdbqt/'
-ligandPDBQTDir = '/home/kmk_gmx/Desktop/bioinfo/blast_datas/blast_docking/aligned_pdbqt_dock/'      # ligand Dir (file name eg:5orh.pdbqt)
-outputGraphDir = '/home/kmk_gmx/Desktop/bioinfo/blast_datas/aligned_blast_dgl/' 
+receptorPDBQTDir = '/home/kmk_gmx/Desktop/bioinfo/receptor_dock/'
+ligandPDBQTDir = '/home/kmk_gmx/Desktop/bioinfo/dockings/'      # ligand Dir (file name eg:5orh.pdbqt)
+outputGraphDir = '/home/kmk_gmx/Desktop/bioinfo/negative_graph_featureSimplified/' 
 
 receptorFileNames = os.listdir(receptorPDBQTDir)
 ligandFileNames = os.listdir(ligandPDBQTDir)
+rmsd_df = pd.read_csv('../dock_rsmd.csv')
+dock_rmsd = {}
+for i, row in rmsd_df.iterrows():
+    dock_rmsd[row['dock_name']] = float(row['rsmd'])
 ligPrefixDict = {}
 for ligFname in ligandFileNames:
-    if len(ligFname) != len("5orh_5orh_lignad_1.pdbqt"):
+    if len(ligFname) != len("5orh_lignad_1.pdbqt"):
         continue
-    if ligFname[:9] in ligPrefixDict:
-        ligPrefixDict[ligFname[:9]].append(ligandPDBQTDir + ligFname)
+    if dock_rmsd[ligFname[:-6]] >2.0:
         continue
-    ligPrefixDict[ligFname[:9]] = []
+    if ligFname[:4] in ligPrefixDict:
+        ligPrefixDict[ligFname[:4]].append(ligandPDBQTDir + ligFname)
+        continue
+    ligPrefixDict[ligFname[:4]] = [ligandPDBQTDir + ligFname]
 def getAllLigNames(recepId):
     if recepId not in ligPrefixDict:
         return []
@@ -36,8 +42,8 @@ def getAllLigNames(recepId):
 generateFilePairs = []
 cal = RMSDCalculator()
 for recep in os.listdir(receptorPDBQTDir):
-    recepId = recep[:9]
-    recepFilePath = receptorPDBQTDir + recep
+    recepId = recep[:4]
+    recepFilePath = receptorPDBQTDir + recep# + '.pdbqt'
     curLigandFilePaths = getAllLigNames(recepId)
     for fname in curLigandFilePaths:
         # rmsd = cal.calculateRMSD(recepFile, ligandFile)
@@ -169,7 +175,7 @@ def generateNegaDGL(recep, docks, dockNames):
 
 
 # generate test dataset
-logFile = open('./aligned_dgl.log', 'w+')
+logFile = open('./new_train_dgl.log', 'w+')
 for pair in generateFilePairs:
     recepFile = open(pair[0])
     ligFile   = open(pair[1])
@@ -179,7 +185,7 @@ for pair in generateFilePairs:
     recep = extractAtomLines(recepFile.readlines())
     lig   = extractAtomLines(ligFile.readlines())
     
-    generatePosiDGL(recep, lig, outputGraphDir + name[-18:])
+    generatePosiDGL(recep, lig, outputGraphDir + name[-13:])
     #generateNegaDGL(recep, docks, dockNames)
     
     # print(name[:4], len(docks))

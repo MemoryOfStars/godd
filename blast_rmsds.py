@@ -4,24 +4,24 @@ import numpy as np
 import math
 
 ligand_dir = '/home/kmk_gmx/Desktop/bioinfo/ligand_dock/'
-aligned_dock_dir = '/home/kmk_gmx/Desktop/bioinfo/blast_datas/blast_docking/aligned_pdbqt_dock/'
+aligned_dock_dir = '/home/kmk_gmx/Desktop/bioinfo/dockings/'
 
 '''
 source2blast = pd.read_csv('./source2blast.csv')
-'''
 blastDict = {}
 for i in os.listdir(aligned_dock_dir):
     blastDict[i[:-6]] = i[5:9]
-
+'''
 
 blast_docks = []
 rmsds = []
 for fname in os.listdir(aligned_dock_dir):
-    if len(fname) != len('5orh_5orh_ligand_1.pdbqt'):
+    if len(fname) != len('5orh_ligand_1.pdbqt'):
         continue
-    blast_id = fname[:-6]
+    #blast_id = fname[:-6]
     print(fname)
-    lig_name = blastDict[blast_id]
+    #lig_name = blastDict[blast_id]
+    lig_name = fname[:4]
     oriX = [];oriY = [];oriZ = []
     with open(ligand_dir + lig_name + '.pdbqt') as natFile:
         for line in natFile.readlines():
@@ -45,4 +45,4 @@ for fname in os.listdir(aligned_dock_dir):
     rmsds.append(rmsd)
 
 df = pd.DataFrame({'blast':blast_docks, 'rmsd':rmsds})
-df.to_csv('./blast_aligned_rmsds.csv')
+df.to_csv('./train_rmsds.csv')
