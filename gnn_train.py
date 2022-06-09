@@ -12,13 +12,13 @@ from torch.autograd import Variable
 
 from sklearn.utils import shuffle
 batchSize = 20
-trainName = 'newLayers'
+trainName = 'plus02dataset'
 
 from dgl.data import DGLDataset
 from my_dataset import  MyDataset
 
-trainDataset = MyDataset('./train_dataset_simple.csv', batchSize, (-1, -1))
-validationDataset = MyDataset('./validation_dataset_simple.csv', batchSize, (2, 4))
+trainDataset = MyDataset('./new_train_dataset_simple.csv', batchSize, (-1, -1))
+validationDataset = MyDataset('./new_validation_dataset_simple.csv', batchSize, (2, 4))
 
 from dgl.dataloading.pytorch import GraphDataLoader
 from torch.utils.data.sampler import SubsetRandomSampler
@@ -56,7 +56,7 @@ FPRate = []
 FNRate = []
 temp = 0.0
 lossFunc = torch.nn.BCELoss()
-for epoch in range(300):
+for epoch in range(200):
     
     for batched_graph, labels in tqdm(trainDataloader):
         # try:
