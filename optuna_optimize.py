@@ -52,8 +52,8 @@ def objective(trial):
     optimizer = getattr(torch.optim, optimizer_name)(model.parameters(), lr=lr)
 
     # Get the MNIST dataset.
-    trainDataset = MyDataset('./train_dataset_simple.csv', batchSize, (-1, -1))
-    validationDataset = MyDataset('./validation_dataset_simple.csv', batchSize, (2, 4))
+    trainDataset = MyDataset('./new_train_dataset_simple.csv', batchSize, (-1, -1))
+    validationDataset = MyDataset('./new_validation_dataset_simple.csv', batchSize, (0, 4))
     numTrain = 2000
     numValidation = 400
     

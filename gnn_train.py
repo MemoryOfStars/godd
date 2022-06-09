@@ -12,13 +12,13 @@ from torch.autograd import Variable
 
 from sklearn.utils import shuffle
 batchSize = 20
-trainName = 'plus02dataset'
+trainName = 'plus02train02valid'
 
 from dgl.data import DGLDataset
 from my_dataset import  MyDataset
 
 trainDataset = MyDataset('./new_train_dataset_simple.csv', batchSize, (-1, -1))
-validationDataset = MyDataset('./new_validation_dataset_simple.csv', batchSize, (2, 4))
+validationDataset = MyDataset('./new_validation_dataset_simple.csv', batchSize, (0, 4))
 
 from dgl.dataloading.pytorch import GraphDataLoader
 from torch.utils.data.sampler import SubsetRandomSampler
