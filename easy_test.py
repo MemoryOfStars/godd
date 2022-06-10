@@ -37,4 +37,4 @@ for i, row in df.iterrows():
 
 
 df = pd.DataFrame({"name":file_names, "pred":predictions})
-df.to_csv('test_pred_newtrain.csv')
+df.to_csv('test_pred.csv')
