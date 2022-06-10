@@ -28,9 +28,13 @@ class DistanceRmsd():
         pair_count = 0
         for rrow in recep_graph_data:
             for lrow in lig_data:
-                dis_rmsd += self.distanceIn2Atoms(rrow, lrow)**2
+                dis = self.distanceIn2Atoms(rrow, lrow)
+                if dis < 2 or dis > 4:
+                    continue
+                dis_rmsd += dis**2
                 pair_count += 1
-
+        if pair_count == 0:
+            return -1
         return math.sqrt(dis_rmsd/pair_count)
 
 
@@ -88,18 +92,20 @@ class DistanceRmsd():
         return min(distances)
 
 if __name__ == '__main__':
-    output = 'test_disrmsd.csv'
-    recep_dir = '/home/kmk_gmx/Desktop/bioinfo/receptor_dock/'
+    output = 'test_disrmsd24.csv'
     lig_dir = '/home/kmk_gmx/Desktop/bioinfo/ligand_dock/'
+    recep_dir = '/home/kmk_gmx/Desktop/bioinfo/receptor_dock/'
     cal = DistanceRmsd()
     names = []
     dis_rmsds = []
-    for pdbid in os.listdir(recep_dir):
+    for pdbid in os.listdir(lig_dir):
+        if len(pdbid) != len('10gs.pdbqt'):
+            continue
         name = pdbid[:4]
-        dis_rmsd = cal.rmsd(recep_dir + pdbid, lig_dir + pdbid)
-        names.append(name)
-        dis_rmsds.append(dis_rmsd)
         print(pdbid)
+        dis_rmsd = cal.rmsd(recep_dir + name + '.pdbqt', lig_dir + pdbid)
+        names.append(pdbid[:-6])
+        dis_rmsds.append(dis_rmsd)
 
     df = pd.DataFrame({'name': names, 'dis_rmsd': dis_rmsds})
     df.to_csv(output)
