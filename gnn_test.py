@@ -26,7 +26,7 @@ print("dataset length:", num_examples)
 test_sampler = SubsetRandomSampler(torch.arange(num_examples))
 test_dataloader = GraphDataLoader(my_dataset, sampler=test_sampler, batch_size=my_batch_size, drop_last=False)
 
-modelPath = '../models/gcn1649678138newLayers.pkl'
+modelPath = '../models/gcnnewLayers1649822481.pkl'
 model = torch.load(modelPath)
 
 print(model)

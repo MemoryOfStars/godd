@@ -15,13 +15,13 @@ from gcn import GCN
 from my_dataset import MyDataset
 
 device = torch.device("cuda:0")
-modelPath = '../models/gcnplus02dataset1654729163.pkl'
+modelPath = '../models/gcnnewLayers1649822481.pkl'
 model = torch.load(modelPath)
 
 print(model)
 
 #file_path = '/home/kmk_gmx/Desktop/bioinfo/blast_datas/aligned_blast_dgl/'
-csv_file_path = './new_test_simple.csv'
+csv_file_path = './test_simple.csv'
 df = pd.read_csv(csv_file_path)
 file_names = []
 predictions = []
