@@ -21,7 +21,7 @@ model = torch.load(modelPath)
 print(model)
 
 #file_path = '/home/kmk_gmx/Desktop/bioinfo/blast_datas/aligned_blast_dgl/'
-csv_file_path = './test_simple.csv'
+csv_file_path = './train_dataset_simple.csv'
 df = pd.read_csv(csv_file_path)
 file_names = []
 predictions = []
@@ -37,4 +37,4 @@ for i, row in df.iterrows():
 
 
 df = pd.DataFrame({"name":file_names, "pred":predictions})
-df.to_csv('test_pred.csv')
+df.to_csv('train_pred.csv')
