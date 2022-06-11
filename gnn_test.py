@@ -15,7 +15,7 @@ from gcn import GCN
 from my_dataset import MyDataset
 
 my_batch_size = 30
-my_dataset = MyDataset('./test_simple.csv', my_batch_size, (2, 4))
+my_dataset = MyDataset('./test_simple.csv', my_batch_size, (-1, -1))
 
 from dgl.dataloading.pytorch import GraphDataLoader
 from torch.utils.data.sampler import SubsetRandomSampler
@@ -47,4 +47,4 @@ for batched_graph, labels in test_dataloader:
 
     num_correct += (pred.round() == labels).sum().item() # TP+TN
     num_tests += len(labels) # TP+TN+FP+FN
-print(num_correct/num_tests)
+print(num_correct/num_tests, FP, FN)
