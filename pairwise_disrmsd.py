@@ -10,6 +10,10 @@ PDBQT_Y_POS_INDEX = 9
 PDBQT_Z_POS_INDEX = 10
 PDBQT_TYPE_INDEX  = 14
 ELEMENT_TYPE = ['HD', 'C', 'A', 'N', 'NA', 'OA', 'F', 'MG', 'P', 'S', 'CL', 'CA', 'MN', 'FE', 'ZN', 'BR', 'I']
+ResMap = {'GLY':'G', 'ALA':'A', 'VAL':'V', 'LEU':'L', 'ILE':'I',
+          'PHE':'F', 'TRP':'W', 'TYR':'Y', 'ASP':'D', 'ASN':'N',
+          'GLU':'E', 'LYS':'K', 'GLN':'Q', 'MET':'M', 'SER':'S',
+          'THR':'T', 'CYS':'C', 'PRO':'P', 'HIS':'H', 'ARG':'R'}
 
 class PairwiseDisRmsd():
     def __init__(self):
