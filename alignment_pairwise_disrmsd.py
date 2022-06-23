@@ -192,10 +192,5 @@ def main(num):
 
     df = pd.DataFrame({'name': names, 'dis_rmsd': dis_rmsds, 'cry_disrmsd': cry_disrmsds, 'lost_pairs': lost_pairss})
     df.to_csv(output)
-   
-threads = []
-for i in range(1, 10):
-    threads.append(threading.Thread(target=main, args=[i]))
-
-for thread in threads:
-    thread.start()
+  
+main(9)

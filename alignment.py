@@ -65,12 +65,15 @@ class AlignBlast:
         align2 = alignment[1]
         for i in range(len(alignment[0])):
             if align1[i] == '-':
+                cursor2 += 1
                 continue
             if align2[i] == '-':
+                cursor1 += 1
                 continue
             if align1[i] != '-' and align2[i] != '-':
                 alignMap[seqIdMap1[cursor1]] = seqIdMap2[cursor2] 
                 cursor1 += 1
                 cursor2 += 1
+        print(alignMap)
 
         return alignMap, seqData1, seqData2
