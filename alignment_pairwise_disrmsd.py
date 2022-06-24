@@ -97,8 +97,9 @@ class AlignPairwiseDisRmsd():
                 if resAtom == None:
                     continue
 
-                dis = self.distanceIn2Atoms(resAtom, lrow)
-                dis_rmsd += dis**2
+                dis_blast = self.distanceIn2Atoms(resAtom, lrow)
+                dis_source = self.distanceIn2Atoms(rrow, lrow)
+                dis_rmsd += (dis_blast-dis_source)**2
                 pair_count += 1
         if pair_count == 0:
             return 0, lost_pairs
@@ -159,7 +160,7 @@ class AlignPairwiseDisRmsd():
         return min(distances)
 
 def main(num):
-    output = 'aligned_blast_pairwise_disrmsd%d.csv' % num
+    output = 'new_aligned_blast_pairwise_disrmsd%d.csv' % num
     lig_dir = '/home/kmk_gmx/Desktop/bioinfo/ligand_dock/'
     recep_dir = '/home/kmk_gmx/Desktop/bioinfo/receptor_dock/'
     blast_dir = '/home/kmk_gmx/Desktop/bioinfo/blast_datas/blast_docking/aligned_truncated_pdbqt/'
