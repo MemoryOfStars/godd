@@ -89,6 +89,7 @@ class AlignPairwiseDisRmsd():
                 continue
             for rrow in structure[lrow[PDBQT_SERIAL_INDEX]]:
                 if int(rrow[PDBQT_SEQID_INDEX]) not in align:
+                    dis_rmsd += self.distanceIn2Atoms(rrow, lrow)
                     lost_pairs += 1
                     continue
                 seqId = align[int(rrow[PDBQT_SEQID_INDEX])]
@@ -103,7 +104,7 @@ class AlignPairwiseDisRmsd():
                 pair_count += 1
         if pair_count == 0:
             return 0, lost_pairs
-        return math.sqrt(dis_rmsd/pair_count), lost_pairs
+        return math.sqrt(dis_rmsd/(pair_count+lost_pairs)), lost_pairs
 
 
     def extractAtomLines(self, pdbqtLines):
