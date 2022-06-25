@@ -89,7 +89,7 @@ class AlignPairwiseDisRmsd():
                 continue
             for rrow in structure[lrow[PDBQT_SERIAL_INDEX]]:
                 if int(rrow[PDBQT_SEQID_INDEX]) not in align:
-                    dis_rmsd += self.distanceIn2Atoms(rrow, lrow)
+                    dis_rmsd += self.distanceIn2Atoms(rrow, lrow)**2
                     lost_pairs += 1
                     continue
                 seqId = align[int(rrow[PDBQT_SEQID_INDEX])]
